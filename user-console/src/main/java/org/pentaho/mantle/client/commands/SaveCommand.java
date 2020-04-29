@@ -74,7 +74,7 @@ public class SaveCommand extends AbstractCommand {
       String fileDir = "";
       if ( path != null && !StringUtils.isEmpty( path ) ) {
         // If has extension
-        if ( path.endsWith( name ) ) {
+        if ( path.endsWith( name ) ) { //TODO: SMR! What happens when name=null?
           fileDir = path.substring( 0, path.lastIndexOf( "/" ) );
         } else {
           fileDir = path;
