@@ -165,6 +165,11 @@ public class SchedulerResourceUtil {
         Date origStartDate = request.getComplexJobTrigger().getStartTime();
         Date serverTimeZoneStartDate = convertDateToServerTimeZone( origStartDate, request.getTimeZone() );
         request.getComplexJobTrigger().setStartTime( serverTimeZoneStartDate );
+        if ( origStartDate.getDate() != serverTimeZoneStartDate.getDate() ) {
+          // The TimeZone offset originated a change in the day itself
+          int dayDif = serverTimeZoneStartDate.compareTo( origStartDate );
+          updateWeekDays( request, dayDif );
+        }
       }
     } else if ( request.getCronJobTrigger() != null ) {
       if ( request.getCronJobTrigger().getStartTime() != null ) {
@@ -195,6 +200,16 @@ public class SchedulerResourceUtil {
     }
   }
 
+  public static void updateWeekDays( JobScheduleRequest request, int dayDif ) {
+    for ( int i = request.complexJobTrigger.daysOfWeek.length - 1; i >= 0; --i ) {
+      request.complexJobTrigger.daysOfWeek[ i ] += dayDif;
+      if ( request.complexJobTrigger.daysOfWeek[ i ] > 6 ) {
+        request.complexJobTrigger.daysOfWeek[ i ] -= 7;
+      } else if ( request.complexJobTrigger.daysOfWeek[ i ] < 0 ) {
+        request.complexJobTrigger.daysOfWeek[ i ] += 7;
+      }
+    }
+  }
 
   public static HashMap<String, Serializable> handlePDIScheduling( RepositoryFile file,
                                                                    HashMap<String, Serializable> parameterMap, Map<String, String> pdiParameters ) {
