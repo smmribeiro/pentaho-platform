@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -75,7 +75,7 @@ public class SpringPentahoObjectReference<T> implements IPentahoObjectReference<
     try {
       Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
       Object obj = context.getBeanFactory().getBean( name );
-      SpringScopeSessionHolder.SESSION.set( null );
+      SpringScopeSessionHolder.SESSION.remove();
 
       if ( obj instanceof IPentahoInitializer ) {
         ( (IPentahoInitializer) obj ).init( sessionToUse );

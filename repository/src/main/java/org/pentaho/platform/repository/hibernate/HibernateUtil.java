@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -70,13 +70,12 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
 
   private static final byte[] lock = new byte[0];
 
-  private static final ThreadLocal<Session> threadSession = new ThreadLocal<Session>();
+  private static final ThreadLocal<Session> threadSession = new ThreadLocal<>();
 
-  private static final ThreadLocal<Transaction> threadTransaction = new ThreadLocal<Transaction>();
+  private static final ThreadLocal<Transaction> threadTransaction = new ThreadLocal<>();
 
-  private static final ThreadLocal<Interceptor> threadInterceptor = new ThreadLocal<Interceptor>();
+  private static final ThreadLocal<Interceptor> threadInterceptor = new ThreadLocal<>();
 
-  // private static final ThreadLocal commitNeeded = new ThreadLocal();
   private static boolean hibernateManaged;
 
   private static String factoryJndiName;
@@ -398,17 +397,17 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
   public static void closeSession() throws RepositoryException {
     try {
       Session s = (Session) HibernateUtil.threadSession.get();
-      HibernateUtil.threadSession.set( null );
+      HibernateUtil.threadSession.remove();
       if ( ( s != null ) && s.isOpen() ) {
         if ( HibernateUtil.debug ) {
           HibernateUtil.log.debug( Messages.getInstance().getString( "HIBUTIL.DEBUG_CLOSING_SESSION" ) ); //$NON-NLS-1$
         }
         s.close();
       }
-      HibernateUtil.threadTransaction.set( null );
+      HibernateUtil.threadTransaction.remove();
     } catch ( HibernateException ex ) {
       HibernateUtil.log.error( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0009_CLOSE_SESSION" ), ex ); //$NON-NLS-1$
-      HibernateUtil.threadTransaction.set( null );
+      HibernateUtil.threadTransaction.remove();
       throw new RepositoryException( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0009_CLOSE_SESSION" ), ex ); //$NON-NLS-1$
     }
 
@@ -438,8 +437,6 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
    * Commit the database transaction.
    */
   public static void commitTransaction() throws RepositoryException {
-    // Boolean needed = (Boolean)commitNeeded.get();
-    // if (needed.booleanValue()){
     Transaction tx = (Transaction) HibernateUtil.threadTransaction.get();
     try {
       if ( ( tx != null ) && !tx.wasCommitted() && !tx.wasRolledBack() ) {
@@ -458,14 +455,9 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
       if ( ex instanceof ConstraintViolationException ) {
         throw new RepositoryException( Messages.getInstance().getErrorString( "HIBUTIL.ERROR_0008_COMMIT_TRANS" ), ex ); //$NON-NLS-1$
       }
-      // throw new
-      // RepositoryException(Messages.getInstance().getErrorString("HIBUTIL.ERROR_0008_COMMIT_TRANS"),
-      // ex); //$NON-NLS-1$
     } finally {
-      HibernateUtil.threadTransaction.set( null );
+      HibernateUtil.threadTransaction.remove();
     }
-    // }
-    // commitNeeded.set(Boolean.FALSE);
   }
 
   /**
@@ -474,7 +466,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
   public static void rollbackTransaction() throws RepositoryException {
     Transaction tx = (Transaction) HibernateUtil.threadTransaction.get();
     try {
-      HibernateUtil.threadTransaction.set( null );
+      HibernateUtil.threadTransaction.remove();
       if ( ( tx != null ) && !tx.wasCommitted() && !tx.wasRolledBack() ) {
         if ( HibernateUtil.debug ) {
           HibernateUtil.log.debug( Messages.getInstance().getString( "HIBUTIL.DEBUG_ROLLBACK" ) ); //$NON-NLS-1$
@@ -490,18 +482,6 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
   }
 
   /**
-   * Reconnects a Hibernate Session to the current Thread.
-   * 
-   * @param session
-   *          The Hibernate Session to be reconnected.
-   */
-  /*
-   * public static void reconnect(Session session) throws RepositoryException { try { session.reconnect();
-   * threadSession.set(session); } catch (HibernateException ex) {
-   * log.error(Messages.getInstance().getErrorString("HIBUTIL.ERROR_0001_RECONNECT"), ex); //$NON-NLS-1$ throw new
-   * RepositoryException(ex); } }
-   */
-  /**
    * Disconnect and return Session from current Thread.
    * 
    * @return Session the disconnected Session
@@ -510,7 +490,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
 
     Session session = HibernateUtil.getSession();
     try {
-      HibernateUtil.threadSession.set( null );
+      HibernateUtil.threadSession.remove();
       if ( session.isConnected() && session.isOpen() ) {
         session.disconnect();
       }
@@ -532,8 +512,7 @@ public class HibernateUtil implements IPentahoSystemEntryPoint, IPentahoSystemEx
   }
 
   private static Interceptor getInterceptor() {
-    Interceptor interceptor = (Interceptor) HibernateUtil.threadInterceptor.get();
-    return interceptor;
+    return HibernateUtil.threadInterceptor.get();
   }
 
   /**

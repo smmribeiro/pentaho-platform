@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -243,7 +243,7 @@ public abstract class AbstractSpringPentahoObjectFactory implements IPentahoObje
         }
       } else {
         // be sure to clear out any session held.
-        SpringScopeSessionHolder.SESSION.set( null );
+        SpringScopeSessionHolder.SESSION.remove();
         // Spring can handle the object retrieval since we are not dealing with StandaloneSession
 
         if ( key != null ) { // if they want it by id, look for it that way first

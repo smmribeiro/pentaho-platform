@@ -14,7 +14,7 @@
  * See the GNU General Public License for more details.
  *
  *
- * Copyright (c) 2002-2018 Hitachi Vantara. All rights reserved.
+ * Copyright (c) 2002-2021 Hitachi Vantara. All rights reserved.
  *
  */
 
@@ -46,7 +46,7 @@ public class BeanBuilder implements FactoryBean {
 
   private String type;
   private Map<String, String> attributes;
-  private static ThreadLocal<BeanBuilder> resolvingBean = new ThreadLocal<BeanBuilder>();
+  private static ThreadLocal<BeanBuilder> resolvingBean = new ThreadLocal<>();
   private static Logger log = LoggerFactory.getLogger( BeanBuilder.class );
   private Integer dampeningTimeout = null;
 
@@ -72,7 +72,7 @@ public class BeanBuilder implements FactoryBean {
         resolvingBean.set( this );
         List<IPentahoObjectReference<?>> objectReferences =
             PentahoSystem.getObjectFactory().getObjectReferences( cls, PentahoSessionHolder.getSession(), attributes );
-        resolvingBean.set( null );
+        resolvingBean.remove();
         if ( objectReferences.size() > 1 ) {
           // we have more than one, return the second highest
           return objectReferences.get( 1 ).getObject();
@@ -92,7 +92,7 @@ public class BeanBuilder implements FactoryBean {
         if ( objectReference != null ) {
           val = objectReference.getObject();
         }
-        resolvingBean.set( null );
+        resolvingBean.remove();
         if ( val == null ) {
           log.debug( "No object was found to satisfy pen:bean request [" + type + " : " + attributes + "]" );
 
