@@ -13,34 +13,34 @@
 
 package org.pentaho.platform.plugin.services.importer;
 
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.pentaho.platform.api.action.IAction;
 import org.pentaho.platform.api.engine.IAuthorizationPolicy;
 import org.pentaho.platform.api.engine.IUserRoleListService;
+import org.pentaho.platform.api.scheduler2.IJob;
 import org.pentaho.platform.api.scheduler2.IScheduler;
-import org.pentaho.platform.api.scheduler2.Job;
-import org.pentaho.platform.api.scheduler2.Job.JobState;
+import org.pentaho.platform.api.scheduler2.JobState;
 import org.pentaho.platform.api.scheduler2.SchedulerException;
 import org.pentaho.platform.engine.core.system.PentahoSystem;
 import org.pentaho.platform.engine.core.system.boot.PlatformInitializationException;
 import org.pentaho.platform.engine.security.SecurityHelper;
+import org.pentaho.platform.plugin.services.importexport.exportManifest.bindings.JobScheduleRequest;
 import org.pentaho.platform.scheduler2.quartz.QuartzScheduler;
 import org.pentaho.platform.scheduler2.quartz.test.StubUserRoleListService;
-import org.pentaho.platform.web.http.api.resources.JobScheduleRequest;
 import org.pentaho.test.platform.engine.core.MicroPlatform;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class SolutionImportHandlerIT extends Assert {
 
@@ -75,14 +75,14 @@ public class SolutionImportHandlerIT extends Assert {
     requests.add( createJobScheduleRequest( "PAUSED", JobState.COMPLETE ) );
     requests.add( createJobScheduleRequest( "PAUSED", JobState.ERROR ) );
 
-    doReturn( new ArrayList<Job>(  ) ).when( importHandler ).getAllJobs( any() );
+    doReturn( new ArrayList<IJob>(  ) ).when( importHandler ).getAllJobs( any() );
     importHandler.importSchedules( requests );
 
-    List<Job> jobs = scheduler.getJobs( job -> true );
+    List<IJob> jobs = scheduler.getJobs( job -> true );
 
     assertEquals( 4, jobs.size() );
 
-    for ( Job job : jobs ) {
+    for ( IJob job : jobs ) {
       assertEquals( job.getJobName(), job.getState().toString() );
     }
   }

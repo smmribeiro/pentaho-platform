@@ -37,7 +37,9 @@ import org.pentaho.test.platform.utils.TestResourceLocation;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings( "nls" )
 public class SystemPathPluginProviderIT {
@@ -116,13 +118,16 @@ public class SystemPathPluginProviderIT {
       new PluginNameMatcherPredicate( "Plugin 1" ) ) );
 
     for ( IPlatformPlugin plugin : plugins ) {
+      List<String> lifecycleListenerClassnames = plugin.getLifecycleListenerClassnames();
       if ( plugin.getId().equals( "Plugin 1" ) ) {
-        assertEquals( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer", plugin
-            .getLifecycleListenerClassname() );
+        assertNotNull( lifecycleListenerClassnames );
+        assertEquals( 1, lifecycleListenerClassnames.size() );
+        assertEquals( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer", lifecycleListenerClassnames.get( 0 ) );
       }
       if ( plugin.getId().equals( "Plugin 2" ) ) {
         // no listener defined to for Plugin 2
-        assertNull( plugin.getLifecycleListenerClassname() );
+        assertNotNull( lifecycleListenerClassnames );
+        assertEquals( 0, lifecycleListenerClassnames.size() );
       }
     }
   }
@@ -165,7 +170,10 @@ public class SystemPathPluginProviderIT {
         (IPlatformPlugin) CollectionUtils.find( plugins, new PluginNameMatcherPredicate( "Plugin 1" ) );
     assertNotNull( "Plugin 1 should have been found", plugin );
 
-    assertEquals( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer", plugin.getLifecycleListenerClassname() );
+    List<String> lifecycleListenerClassnames = plugin.getLifecycleListenerClassnames();
+    assertNotNull( lifecycleListenerClassnames );
+    assertEquals( 1, lifecycleListenerClassnames.size() );
+    assertEquals( "org.pentaho.test.platform.plugin.pluginmgr.FooInitializer", lifecycleListenerClassnames.get( 0 ) );
   }
 
   @SuppressWarnings( "deprecation" )
