@@ -275,9 +275,9 @@
       </activation>
       <modules>
         <module>core</module>
-        <module>repository</module>
-        <module>extensions</module>
-        <module>tomcat-logs</module>
+        <!--SMRmodule>repository</module-->
+        <!--SMRmodule>extensions</module-->
+        <!--SMRmodule>tomcat-logs</module-->
       </modules>
     </profile>
     <profile>
@@ -288,7 +288,7 @@
         </property>
       </activation>
       <modules>
-        <module>user-console</module>
+        <!--SMRmodule>user-console</module-->
         <module>assemblies</module>
       </modules>
     </profile>
